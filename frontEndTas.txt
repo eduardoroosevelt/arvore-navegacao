@@ -1,0 +1,92 @@
+Front-end integration guide
+
+Base URL
+- http://localhost:8080
+
+Authentication
+- HTTP Basic Auth for all secured endpoints.
+- Admin role required for /api/admin/**.
+
+Menu endpoint
+- GET /api/menu
+- Auth: Basic
+- Response: Array<MenuItem>
+
+MenuItem type (recursive)
+{
+  "id": number,
+  "code": string,
+  "label": string,
+  "route": string | null,
+  "icon": string | null,
+  "children": MenuItem[]
+}
+
+Admin endpoints (ROLE_ADMIN)
+
+1) Create permission
+- POST /api/admin/permissions
+- Body:
+  {
+    "code": string
+  }
+- Response: PermissionEntity
+  {
+    "id": number,
+    "code": string
+  }
+
+2) Create user
+- POST /api/admin/users
+- Body:
+  {
+    "username": string,
+    "password": string,
+    "roles": string, // e.g. "ROLE_ADMIN" or "ROLE_USER"
+    "enabled": boolean
+  }
+- Response: UserEntity (password omitted)
+  {
+    "id": number,
+    "username": string,
+    "enabled": boolean,
+    "roles": string,
+    "permissions": PermissionEntity[]
+  }
+
+3) Create menu item
+- POST /api/admin/menu-items
+- Body:
+  {
+    "code": string,
+    "label": string,
+    "route": string | null,
+    "icon": string | null,
+    "parentId": number | null,
+    "orderIndex": number,
+    "enabled": boolean
+  }
+- Response: MenuItemEntity
+  {
+    "id": number,
+    "code": string,
+    "label": string,
+    "route": string | null,
+    "icon": string | null,
+    "orderIndex": number,
+    "enabled": boolean,
+    "parent": MenuItemEntity | null,
+    "requiredPermissions": PermissionEntity[]
+  }
+
+4) Assign permission to user
+- POST /api/admin/users/{userId}/permissions/{permissionId}
+- Response: UserEntity
+
+5) Assign permission to menu item
+- POST /api/admin/menu-items/{menuId}/permissions/{permissionId}
+- Response: MenuItemEntity
+
+Seed credentials
+- admin / admin123 (ROLE_ADMIN)
+- user / user123 (ROLE_USER)
